@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "npm run export:data",
     "dev": "vite",
+    "prebuild": "npm run export:data",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "export:data": "tsx scripts/export-jotform-data.mjs"

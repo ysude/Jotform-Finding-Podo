@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises"
 import { resolve } from "node:path"
 
-const outputDir = resolve(process.cwd(), "data")
+const outputDir = resolve(process.cwd(), "public")
 const outputFile = resolve(outputDir, "jotform-data.json")
 
 async function main() {
