@@ -88,7 +88,7 @@ export function normalizeEvidence(data: RawInvestigationData): Evidence[] {
       people: cleanPeople([sender, recipient]),
       summary: text || "No message preview.",
       content: text || "No message text.",
-      urgency: urgency || undefined,
+      urgency: urgency ? urgency.toLowerCase() : undefined,
     }
   })
 
@@ -137,7 +137,7 @@ export function normalizeEvidence(data: RawInvestigationData): Evidence[] {
       people: cleanPeople(suspect ? [suspect] : []),
       summary: tip || "No tip preview.",
       content: tip || "No tip content.",
-      confidence: confidence || undefined,
+      confidence: confidence ? confidence.toLowerCase() : undefined,
     }
   })
 

@@ -144,6 +144,18 @@ export default function App() {
     setVisibleEvidenceCount(LIST_PAGE_SIZE)
   }, [filters, activeView])
 
+  useEffect(() => {
+    if (!selectedEvidenceId) return
+
+    const isStillInList = filteredEvidence.some(
+      (item) => item.id === selectedEvidenceId
+    )
+
+    if (!isStillInList) {
+      setSelectedEvidenceId(filteredEvidence[0]?.id ?? null)
+    }
+  }, [filteredEvidence, selectedEvidenceId])
+
   const selectedEvidence =
     filteredEvidence.find((item) => item.id === selectedEvidenceId) ??
     evidence.find((item) => item.id === selectedEvidenceId) ??
