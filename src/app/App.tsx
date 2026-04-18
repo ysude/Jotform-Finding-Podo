@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { CaseOverview } from "../components/CaseOverview"
+import { ContextTimeline } from "../components/ContextTimeline"
+import { DashboardSummaryStrip } from "../components/DashboardSummaryStrip"
 import { EvidenceDetail } from "../components/EvidenceDetail"
 import { EvidenceList } from "../components/EvidenceList"
 import { Header } from "../components/Header"
@@ -10,23 +12,37 @@ import type { AppView, EvidenceFilters } from "../types/evidence"
 import { getRelatedEvidence } from "../utils/getRelatedEvidence"
 import { normalizeEvidence } from "../utils/normalizeEvidence"
 
+const LIST_PAGE_SIZE = 8
+const SAME_TIME_WINDOW_MS = 45 * 60 * 1000
+
 const initialFilters: EvidenceFilters = {
   search: "",
   type: "all",
   person: "",
   location: "",
+  quickFilter: "all",
+  sortBy: "oldest",
 }
 
 export default function App() {
   const [activeView, setActiveView] = useState<AppView>("overview")
   const [filters, setFilters] = useState<EvidenceFilters>(initialFilters)
   const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(null)
+  const [visibleEvidenceCount, setVisibleEvidenceCount] = useState(LIST_PAGE_SIZE)
   const { data, error, isError, isLoading, isSuccess, retry } =
     useInvestigationData()
 
   const evidence = useMemo(
     () => (data ? normalizeEvidence(data) : []),
     [data]
+  )
+
+  const connectionCounts = useMemo(
+    () =>
+      new Map(
+        evidence.map((item) => [item.id, getRelatedEvidence(item, evidence).length])
+      ),
+    [evidence]
   )
 
   useEffect(() => {
@@ -56,15 +72,26 @@ export default function App() {
 
   const filteredEvidence = useMemo(() => {
     const searchValue = filters.search.trim().toLocaleLowerCase("tr-TR")
-
-    return evidence.filter((item) => {
+    const visibleEvidence = evidence.filter((item) => {
       const matchesType = filters.type === "all" || item.type === filters.type
       const matchesPerson = !filters.person || item.people.includes(filters.person)
       const matchesLocation =
         !filters.location || item.location === filters.location
+      const matchesQuickFilter =
+        filters.quickFilter === "all" ||
+        (filters.quickFilter === "podoOnly" && item.people.includes("Podo")) ||
+        (filters.quickFilter === "messagesOnly" && item.type === "message") ||
+        (filters.quickFilter === "sightingsOnly" && item.type === "sighting") ||
+        (filters.quickFilter === "highPriority" &&
+          (item.urgency === "high" || item.confidence === "high"))
 
       if (!searchValue) {
-        return matchesType && matchesPerson && matchesLocation
+        return (
+          matchesType &&
+          matchesPerson &&
+          matchesLocation &&
+          matchesQuickFilter
+        )
       }
 
       const searchableText = [
@@ -81,10 +108,39 @@ export default function App() {
         matchesType &&
         matchesPerson &&
         matchesLocation &&
+        matchesQuickFilter &&
         searchableText.includes(searchValue)
       )
     })
-  }, [evidence, filters])
+
+    return [...visibleEvidence].sort((left, right) => {
+      if (filters.sortBy === "oldest") {
+        return left.sortOrder - right.sortOrder
+      }
+
+      if (filters.sortBy === "mostConnected") {
+        const connectionDelta =
+          (connectionCounts.get(right.id) ?? 0) - (connectionCounts.get(left.id) ?? 0)
+
+        if (connectionDelta !== 0) {
+          return connectionDelta
+        }
+      }
+
+      const leftTimestamp = left.timestampMs ?? Number.MIN_SAFE_INTEGER
+      const rightTimestamp = right.timestampMs ?? Number.MIN_SAFE_INTEGER
+
+      if (rightTimestamp !== leftTimestamp) {
+        return rightTimestamp - leftTimestamp
+      }
+
+      return right.sortOrder - left.sortOrder
+    })
+  }, [connectionCounts, evidence, filters])
+
+  useEffect(() => {
+    setVisibleEvidenceCount(LIST_PAGE_SIZE)
+  }, [filters, activeView])
 
   const selectedEvidence =
     filteredEvidence.find((item) => item.id === selectedEvidenceId) ??
@@ -97,6 +153,20 @@ export default function App() {
     }
 
     return getRelatedEvidence(selectedEvidence, evidence)
+  }, [evidence, selectedEvidence])
+
+  const contextTimeline = useMemo(() => {
+    if (!selectedEvidence || selectedEvidence.timestampMs === null) {
+      return []
+    }
+
+    return evidence.filter(
+      (item) =>
+        item.id !== selectedEvidence.id &&
+        item.timestampMs !== null &&
+        Math.abs(item.timestampMs - (selectedEvidence.timestampMs as number)) <=
+          SAME_TIME_WINDOW_MS
+    )
   }, [evidence, selectedEvidence])
 
   const podoRoute = useMemo(
@@ -131,9 +201,26 @@ export default function App() {
   const hasNoResults =
     isSuccess && evidence.length > 0 && filteredEvidence.length === 0
 
+  const uniquePeopleCount = useMemo(
+    () => [...new Set(evidence.flatMap((item) => item.people))].filter(Boolean).length,
+    [evidence]
+  )
+
+  const uniqueLocationCount = useMemo(
+    () => [...new Set(evidence.map((item) => item.location))].filter(Boolean).length,
+    [evidence]
+  )
+
+  const visibleEvidence = filteredEvidence.slice(0, visibleEvidenceCount)
+  const hasMoreEvidence = visibleEvidenceCount < filteredEvidence.length
+
   function openEvidenceDashboard(recordId: string) {
     setSelectedEvidenceId(recordId)
     setActiveView("dashboard")
+  }
+
+  function clearFilters() {
+    setFilters(initialFilters)
   }
 
   return (
@@ -181,34 +268,58 @@ export default function App() {
               />
             ) : (
               <>
+                <DashboardSummaryStrip
+                  totalRecords={evidence.length}
+                  visibleRecords={filteredEvidence.length}
+                  uniquePeople={uniquePeopleCount}
+                  uniqueLocations={uniqueLocationCount}
+                  lastSightingTimestamp={lastPodoSighting?.timestamp ?? null}
+                />
+
                 <Toolbar
                   filters={filters}
                   people={people}
                   locations={locations}
                   onFiltersChange={setFilters}
+                  onClearFilters={clearFilters}
                 />
 
                 {hasNoResults ? (
                   <StatePanel
                     title="No matching records"
                     message="Try clearing one or more filters to broaden the investigation."
+                    actionLabel="Clear filters"
+                    onAction={clearFilters}
                   />
                 ) : (
-                  <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
+                  <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
                     <EvidenceList
-                      evidence={filteredEvidence}
+                      evidence={visibleEvidence}
                       selectedEvidenceId={selectedEvidenceId}
                       onSelectEvidence={setSelectedEvidenceId}
+                      searchQuery={filters.search}
+                      hasMore={hasMoreEvidence}
+                      onLoadMore={() =>
+                        setVisibleEvidenceCount((current) => current + LIST_PAGE_SIZE)
+                      }
+                      totalCount={filteredEvidence.length}
                     />
 
-                    <EvidenceDetail
-                      evidence={selectedEvidence}
-                      relatedEvidence={relatedEvidence}
-                      onPersonClick={(person) =>
-                        setFilters((current) => ({ ...current, person }))
-                      }
-                      onRelatedEvidenceClick={setSelectedEvidenceId}
-                    />
+                    <div className="space-y-6">
+                      <EvidenceDetail
+                        evidence={selectedEvidence}
+                        relatedEvidence={relatedEvidence}
+                        onPersonClick={(person) =>
+                          setFilters((current) => ({ ...current, person }))
+                        }
+                        onRelatedEvidenceClick={setSelectedEvidenceId}
+                      />
+
+                      <ContextTimeline
+                        evidence={contextTimeline}
+                        onOpenEvidence={setSelectedEvidenceId}
+                      />
+                    </div>
                   </div>
                 )}
               </>

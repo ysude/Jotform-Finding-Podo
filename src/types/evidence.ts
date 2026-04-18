@@ -1,6 +1,13 @@
 export type EvidenceType = "checkin" | "message" | "sighting" | "note" | "tip"
 export type AppView = "overview" | "dashboard"
 export type RelatedReason = "samePerson" | "sameLocation" | "sameTimeWindow"
+export type EvidenceQuickFilter =
+  | "all"
+  | "podoOnly"
+  | "messagesOnly"
+  | "sightingsOnly"
+  | "highPriority"
+export type EvidenceSortOption = "newest" | "oldest" | "mostConnected"
 
 export type CoordinatePoint = {
   lat: number
@@ -56,4 +63,6 @@ export type EvidenceFilters = {
   type: "all" | EvidenceType
   person: string
   location: string
+  quickFilter: EvidenceQuickFilter
+  sortBy: EvidenceSortOption
 }

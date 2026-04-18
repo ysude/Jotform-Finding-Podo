@@ -5,12 +5,20 @@ type EvidenceListProps = {
   evidence: Evidence[]
   selectedEvidenceId: string | null
   onSelectEvidence: (id: string) => void
+  searchQuery: string
+  totalCount: number
+  hasMore: boolean
+  onLoadMore: () => void
 }
 
 export function EvidenceList({
   evidence,
   selectedEvidenceId,
   onSelectEvidence,
+  searchQuery,
+  totalCount,
+  hasMore,
+  onLoadMore,
 }: EvidenceListProps) {
   return (
     <section className="rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm">
@@ -23,19 +31,34 @@ export function EvidenceList({
             Filtered investigation records
           </h2>
         </div>
-        <p className="text-sm text-slate-500">{evidence.length} results</p>
+        <p className="text-sm text-slate-500">
+          {evidence.length} / {totalCount} shown
+        </p>
       </div>
 
       <div className="space-y-3">
-      {evidence.map((item) => (
-        <EvidenceListItem
-          key={item.id}
-          evidence={item}
-          isSelected={item.id === selectedEvidenceId}
-          onSelect={onSelectEvidence}
-        />
-      ))}
+        {evidence.map((item) => (
+          <EvidenceListItem
+            key={item.id}
+            evidence={item}
+            isSelected={item.id === selectedEvidenceId}
+            onSelect={onSelectEvidence}
+            searchQuery={searchQuery}
+          />
+        ))}
       </div>
+
+      {hasMore ? (
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            onClick={onLoadMore}
+            className="rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white"
+          >
+            Load more
+          </button>
+        </div>
+      ) : null}
     </section>
   )
 }

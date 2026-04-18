@@ -13,6 +13,38 @@ const reasonLabels: Record<RelatedReason, string> = {
   sameTimeWindow: "Same time window",
 }
 
+function groupRelatedEvidenceByType(relatedEvidence: RelatedEvidenceItem[]) {
+  const mergedItems = new Map<string, RelatedEvidenceItem>()
+
+  for (const item of relatedEvidence) {
+    const existingItem = mergedItems.get(item.evidence.id)
+
+    if (!existingItem) {
+      mergedItems.set(item.evidence.id, {
+        evidence: item.evidence,
+        reasons: [...item.reasons],
+        sharedPeople: [...item.sharedPeople],
+      })
+      continue
+    }
+
+    existingItem.reasons = [...new Set([...existingItem.reasons, ...item.reasons])]
+    existingItem.sharedPeople = [
+      ...new Set([...existingItem.sharedPeople, ...item.sharedPeople]),
+    ]
+  }
+
+  const groupedItems = new Map<Evidence["type"], RelatedEvidenceItem[]>()
+
+  for (const item of mergedItems.values()) {
+    const group = groupedItems.get(item.evidence.type) ?? []
+    group.push(item)
+    groupedItems.set(item.evidence.type, group)
+  }
+
+  return groupedItems
+}
+
 export function EvidenceDetail({
   evidence,
   relatedEvidence,
@@ -31,6 +63,16 @@ export function EvidenceDetail({
       </div>
     )
   }
+
+  const groupedRelatedEvidence = groupRelatedEvidenceByType(relatedEvidence)
+  const whyItMatters = [
+    evidence.people.includes("Podo") ? "Directly involves Podo" : null,
+    relatedEvidence.length > 0
+      ? `Links to ${relatedEvidence.length} nearby records`
+      : null,
+    evidence.urgency === "high" ? "High urgency message" : null,
+    evidence.confidence === "high" ? "High confidence tip" : null,
+  ].filter(Boolean)
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -70,6 +112,26 @@ export function EvidenceDetail({
       </div>
 
       <div className="mt-6">
+        <h3 className="text-sm font-semibold text-slate-900">Why this matters</h3>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {whyItMatters.length > 0 ? (
+            whyItMatters.map((item) => (
+              <span
+                key={item}
+                className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700"
+              >
+                {item}
+              </span>
+            ))
+          ) : (
+            <p className="text-sm text-slate-500">
+              No special lead signals on this record yet.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-6">
         <h3 className="text-sm font-semibold text-slate-900">People</h3>
         <div className="mt-3 flex flex-wrap gap-2">
           {evidence.people.map((person) => (
@@ -87,45 +149,67 @@ export function EvidenceDetail({
 
       <div className="mt-6">
         <h3 className="text-sm font-semibold text-slate-900">Linked records</h3>
-        <div className="mt-3 space-y-2">
-          {relatedEvidence.slice(0, 8).map((item) => (
-            <button
-              key={item.evidence.id}
-              type="button"
-              onClick={() => onRelatedEvidenceClick(item.evidence.id)}
-              className="block w-full rounded-xl border border-slate-200 px-3 py-2 text-left hover:border-slate-300"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="text-xs uppercase tracking-wide text-slate-500">
-                  {item.evidence.type}
+        <div className="mt-3 space-y-4">
+          {([...groupedRelatedEvidence.entries()] as Array<
+            [Evidence["type"], RelatedEvidenceItem[]]
+          >).map(([type, items]) =>
+            items.length > 0 ? (
+              <details
+                key={type}
+                className="rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
+                    {type}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {items.length} records
+                  </div>
+                </summary>
+
+                <div className="mt-3 space-y-2">
+                  {items.map((item) => (
+                    <button
+                      key={item.evidence.id}
+                      type="button"
+                      onClick={() => onRelatedEvidenceClick(item.evidence.id)}
+                      className="block w-full rounded-xl border border-slate-200 px-3 py-2 text-left hover:border-slate-300"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="text-xs uppercase tracking-wide text-slate-500">
+                          {item.evidence.type}
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          {item.evidence.timestamp}
+                        </div>
+                      </div>
+                      <div className="mt-1 text-sm font-medium text-slate-900">
+                        {item.evidence.title}
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {item.reasons.map((reason) => (
+                          <span
+                            key={reason}
+                            className="rounded-full bg-slate-100 px-2 py-1 text-[11px] text-slate-600"
+                          >
+                            {reasonLabels[reason]}
+                          </span>
+                        ))}
+                        {item.sharedPeople.map((person) => (
+                          <span
+                            key={person}
+                            className="rounded-full bg-amber-100 px-2 py-1 text-[11px] text-amber-900"
+                          >
+                            {person}
+                          </span>
+                        ))}
+                      </div>
+                    </button>
+                  ))}
                 </div>
-                <div className="text-xs text-slate-500">
-                  {item.evidence.timestamp}
-                </div>
-              </div>
-              <div className="mt-1 text-sm font-medium text-slate-900">
-                {item.evidence.title}
-              </div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {item.reasons.map((reason) => (
-                  <span
-                    key={reason}
-                    className="rounded-full bg-slate-100 px-2 py-1 text-[11px] text-slate-600"
-                  >
-                    {reasonLabels[reason]}
-                  </span>
-                ))}
-                {item.sharedPeople.map((person) => (
-                  <span
-                    key={person}
-                    className="rounded-full bg-amber-100 px-2 py-1 text-[11px] text-amber-900"
-                  >
-                    {person}
-                  </span>
-                ))}
-              </div>
-            </button>
-          ))}
+              </details>
+            ) : null
+          )}
           {relatedEvidence.length === 0 ? (
             <p className="text-sm text-slate-500">No linked records found.</p>
           ) : null}
