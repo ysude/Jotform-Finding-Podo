@@ -173,24 +173,12 @@ export function MapView({
                     location.lng,
                   ]}
                   pathOptions={{
-                    color:
-                      location.records.some((record) => record.id === selectedEvidence?.id)
-                        ? "#FF6100"
-                        : "#0A1551",
-                    fillColor:
-                      location.records.some((record) => record.id === selectedEvidence?.id)
-                        ? "#FFB629"
-                        : "#0099FF",
+                    color: "#0A1551",
+                    fillColor: "#0099FF",
                     fillOpacity: 0.75,
-                    weight: location.records.some((record) => record.id === selectedEvidence?.id)
-                      ? 3
-                      : 2,
+                    weight: 2,
                   }}
-                  radius={
-                    location.records.some((record) => record.id === selectedEvidence?.id)
-                      ? 12
-                      : 10
-                  }
+                  radius={10}
                 >
                   <Tooltip
                     permanent
@@ -223,9 +211,6 @@ export function MapView({
                             }`}
                           >
                             <div className="flex flex-wrap items-center justify-between gap-3">
-                              <div className="text-xs uppercase tracking-wide text-slate-500">
-                                {record.type}
-                              </div>
                               <div className="text-xs text-slate-500">
                                 {record.timestamp || "No timestamp"}
                               </div>
