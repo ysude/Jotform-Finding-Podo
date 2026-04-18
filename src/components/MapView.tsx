@@ -236,60 +236,66 @@ export function MapView({
       )}
 
       {locations.length > 0 ? (
-        <div className="mt-5 space-y-4">
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-              Numbered locations
-            </h3>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {locations.map((location) => (
-                <div
-                  key={location.key}
-                  className="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700"
-                >
-                  <span className="font-semibold text-slate-950">
-                    {location.order}.
-                  </span>{" "}
-                  {location.label || "Unknown location"}
-                </div>
-              ))}
-            </div>
-          </div>
+        <details className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <summary className="cursor-pointer text-sm font-semibold text-slate-900">
+            Route details
+          </summary>
 
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-              Route sequence
-            </h3>
-            <div className="mt-2 overflow-x-auto rounded-2xl border border-slate-200 bg-jotform-blue/5 px-4 py-4">
-              <div className="flex min-w-max items-center gap-3">
-                {routeSequence.map((stop, index) => (
-                  <div key={`${stop}-${index}`} className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-jotform-navy bg-white text-lg font-semibold text-jotform-navy">
-                      {stop}
-                    </div>
-                    {index < routeSequence.length - 1 ? (
-                      <div className="flex items-center text-jotform-orange">
-                        <svg
-                          aria-hidden="true"
-                          viewBox="0 0 24 24"
-                          className="h-5 w-5 shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M5 12h14" />
-                          <path d="m13 5 7 7-7 7" />
-                        </svg>
-                      </div>
-                    ) : null}
+          <div className="mt-4 space-y-4">
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Numbered locations
+              </h3>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {locations.map((location) => (
+                  <div
+                    key={location.key}
+                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+                  >
+                    <span className="font-semibold text-slate-950">
+                      {location.order}.
+                    </span>{" "}
+                    {location.label || "Unknown location"}
                   </div>
                 ))}
               </div>
             </div>
+
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Route sequence
+              </h3>
+              <div className="mt-2 overflow-x-auto rounded-2xl border border-slate-200 bg-jotform-blue/5 px-4 py-4">
+                <div className="flex min-w-max items-center gap-3">
+                  {routeSequence.map((stop, index) => (
+                    <div key={`${stop}-${index}`} className="flex items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-jotform-navy bg-white text-lg font-semibold text-jotform-navy">
+                        {stop}
+                      </div>
+                      {index < routeSequence.length - 1 ? (
+                        <div className="flex items-center text-jotform-orange">
+                          <svg
+                            aria-hidden="true"
+                            viewBox="0 0 24 24"
+                            className="h-5 w-5 shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M5 12h14" />
+                            <path d="m13 5 7 7-7 7" />
+                          </svg>
+                        </div>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </details>
       ) : null}
     </section>
   )

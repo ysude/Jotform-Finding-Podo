@@ -15,7 +15,7 @@ import { getRelatedEvidence } from "../utils/getRelatedEvidence"
 import { normalizeEvidence } from "../utils/normalizeEvidence"
 
 const LIST_PAGE_SIZE = 8
-const SAME_TIME_WINDOW_MS = 45 * 60 * 1000
+const SAME_TIME_WINDOW_MS = 15 * 60 * 1000
 
 const initialFilters: EvidenceFilters = {
   search: "",
