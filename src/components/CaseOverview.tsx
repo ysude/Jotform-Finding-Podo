@@ -26,6 +26,7 @@ export function CaseOverview({
           evidence={routeEvidence}
           selectedEvidence={selectedEvidence}
           variant="compact"
+          onSelectEvidence={onOpenDashboard}
         />
 
         <div className="h-full rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">

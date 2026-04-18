@@ -14,6 +14,7 @@ type MapViewProps = {
   evidence: Evidence[]
   selectedEvidence: Evidence | null
   variant?: "default" | "compact"
+  onSelectEvidence?: (id: string) => void
 }
 
 type MappedLocation = {
@@ -111,6 +112,7 @@ export function MapView({
   evidence,
   selectedEvidence,
   variant = "default",
+  onSelectEvidence,
 }: MapViewProps) {
   const mappableEvidence = useMemo(() => getMappableEvidence(evidence), [evidence])
   const { locations, routeSequence: rawRouteSequence } = useMemo(
@@ -199,27 +201,41 @@ export function MapView({
                     {location.order}
                   </Tooltip>
                   <Popup>
-                    <div className="space-y-2 text-sm text-slate-800">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        stop {location.order}
+                    <div className="space-y-3 text-sm text-slate-800">
+                      <div className="space-y-1">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                          stop {location.order}
+                        </div>
+                        <div className="font-semibold text-jotform-navy">
+                          {location.label || "Unknown location"}
+                        </div>
                       </div>
-                      <div className="font-semibold text-jotform-navy">
-                        {location.label || "Unknown location"}
+                      <div className="space-y-2">
+                        {location.records.map((record) => (
+                          <button
+                            key={record.id}
+                            type="button"
+                            onClick={() => onSelectEvidence?.(record.id)}
+                            className={`block w-full rounded-xl border px-3 py-2 text-left transition ${
+                              record.id === selectedEvidence?.id
+                                ? "border-jotform-orange bg-jotform-orange/10"
+                                : "border-slate-200 hover:border-slate-300"
+                            }`}
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-3">
+                              <div className="text-xs uppercase tracking-wide text-slate-500">
+                                {record.type}
+                              </div>
+                              <div className="text-xs text-slate-500">
+                                {record.timestamp || "No timestamp"}
+                              </div>
+                            </div>
+                            <div className="mt-1 font-medium text-jotform-navy">
+                              {record.title}
+                            </div>
+                          </button>
+                        ))}
                       </div>
-                      <div className="text-slate-500">
-                        {location.records.length} route events
-                      </div>
-                      <div>
-                        {selectedLocationRecord.people.join(", ") || "No people listed"}
-                      </div>
-                      <div className="text-slate-500">
-                        {selectedLocationRecord.timestamp || "No timestamp"}
-                      </div>
-                      <p className="text-slate-700">
-                        {previewText(
-                          selectedLocationRecord.summary || selectedLocationRecord.content
-                        )}
-                      </p>
                     </div>
                   </Popup>
                 </CircleMarker>
