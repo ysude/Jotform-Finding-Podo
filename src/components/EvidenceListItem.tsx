@@ -18,7 +18,7 @@ export function EvidenceListItem({
       className={`w-full rounded-2xl border p-4 text-left transition ${
         isSelected
           ? "border-amber-500 bg-amber-50"
-          : "border-slate-200 bg-white hover:border-slate-300"
+          : "border-slate-200 bg-slate-50/60 hover:border-slate-300 hover:bg-white"
       }`}
     >
       <div className="flex items-start justify-between gap-3">

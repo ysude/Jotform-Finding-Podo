@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react"
+import { CaseOverview } from "../components/CaseOverview"
 import { EvidenceDetail } from "../components/EvidenceDetail"
 import { EvidenceList } from "../components/EvidenceList"
+import { Header } from "../components/Header"
 import { StatePanel } from "../components/StatePanel"
 import { Toolbar } from "../components/Toolbar"
 import { useInvestigationData } from "../hooks/useInvestigationData"
-import type { EvidenceFilters } from "../types/evidence"
+import type { AppView, EvidenceFilters } from "../types/evidence"
 import { getRelatedEvidence } from "../utils/getRelatedEvidence"
 import { normalizeEvidence } from "../utils/normalizeEvidence"
 
@@ -16,6 +18,7 @@ const initialFilters: EvidenceFilters = {
 }
 
 export default function App() {
+  const [activeView, setActiveView] = useState<AppView>("overview")
   const [filters, setFilters] = useState<EvidenceFilters>(initialFilters)
   const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(null)
   const { data, error, isError, isLoading, isSuccess, retry } =
@@ -96,23 +99,51 @@ export default function App() {
     return getRelatedEvidence(selectedEvidence, evidence)
   }, [evidence, selectedEvidence])
 
+  const podoRoute = useMemo(
+    () => evidence.filter((item) => item.people.includes("Podo")),
+    [evidence]
+  )
+
+  const lastPodoSighting = useMemo(
+    () =>
+      [...podoRoute].filter((item) => item.type === "sighting").slice(-1)[0] ??
+      null,
+    [podoRoute]
+  )
+
+  const focusPerson =
+    lastPodoSighting?.people.find((person: string) => person !== "Podo") ?? null
+
+  const focusPersonMessages = useMemo(() => {
+    if (!focusPerson) {
+      return []
+    }
+
+    return [...evidence]
+      .filter(
+        (item) => item.type === "message" && item.people.includes(focusPerson)
+      )
+      .slice(-4)
+      .reverse()
+  }, [evidence, focusPerson])
+
   const hasNoData = isSuccess && evidence.length === 0
   const hasNoResults =
     isSuccess && evidence.length > 0 && filteredEvidence.length === 0
 
+  function openEvidenceDashboard(recordId: string) {
+    setSelectedEvidenceId(recordId)
+    setActiveView("dashboard")
+  }
+
   return (
-    <main className="min-h-screen bg-slate-100 text-slate-900">
+    <main className="min-h-screen bg-[linear-gradient(180deg,_#fff8eb_0%,_#f8fafc_28%,_#eef2ff_100%)] text-slate-900">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <header className="mb-6">
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-amber-700">
-            Missing Podo
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold">Ankara Investigation Dashboard</h1>
-          <p className="mt-2 max-w-3xl text-sm text-slate-600">
-            Explore linked evidence records, inspect relationships, and follow
-            the timeline of Podo&apos;s last sightings.
-          </p>
-        </header>
+        <Header
+          activeView={activeView}
+          recordCount={evidence.length}
+          onViewChange={setActiveView}
+        />
 
         {isLoading ? (
           <StatePanel
@@ -139,35 +170,47 @@ export default function App() {
 
         {isSuccess && !hasNoData ? (
           <div className="space-y-6">
-            <Toolbar
-              filters={filters}
-              people={people}
-              locations={locations}
-              onFiltersChange={setFilters}
-            />
-
-            {hasNoResults ? (
-              <StatePanel
-                title="No matching records"
-                message="Try clearing one or more filters to broaden the investigation."
+            {activeView === "overview" ? (
+              <CaseOverview
+                focusPerson={focusPerson}
+                focusPersonMessages={focusPersonMessages}
+                lastSighting={lastPodoSighting}
+                routeEvidence={podoRoute}
+                onOpenDashboard={openEvidenceDashboard}
               />
             ) : (
-              <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
-                <EvidenceList
-                  evidence={filteredEvidence}
-                  selectedEvidenceId={selectedEvidenceId}
-                  onSelectEvidence={setSelectedEvidenceId}
+              <>
+                <Toolbar
+                  filters={filters}
+                  people={people}
+                  locations={locations}
+                  onFiltersChange={setFilters}
                 />
 
-                <EvidenceDetail
-                  evidence={selectedEvidence}
-                  relatedEvidence={relatedEvidence}
-                  onPersonClick={(person) =>
-                    setFilters((current) => ({ ...current, person }))
-                  }
-                  onRelatedEvidenceClick={setSelectedEvidenceId}
-                />
-              </div>
+                {hasNoResults ? (
+                  <StatePanel
+                    title="No matching records"
+                    message="Try clearing one or more filters to broaden the investigation."
+                  />
+                ) : (
+                  <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
+                    <EvidenceList
+                      evidence={filteredEvidence}
+                      selectedEvidenceId={selectedEvidenceId}
+                      onSelectEvidence={setSelectedEvidenceId}
+                    />
+
+                    <EvidenceDetail
+                      evidence={selectedEvidence}
+                      relatedEvidence={relatedEvidence}
+                      onPersonClick={(person) =>
+                        setFilters((current) => ({ ...current, person }))
+                      }
+                      onRelatedEvidenceClick={setSelectedEvidenceId}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </div>
         ) : null}

@@ -1,4 +1,11 @@
 export type EvidenceType = "checkin" | "message" | "sighting" | "note" | "tip"
+export type AppView = "overview" | "dashboard"
+export type RelatedReason = "samePerson" | "sameLocation" | "sameTimeWindow"
+
+export type CoordinatePoint = {
+  lat: number
+  lng: number
+}
 
 export type Evidence = {
   id: string
@@ -7,12 +14,21 @@ export type Evidence = {
   people: string[]
   location: string
   coordinates?: string
+  coordinatesPoint?: CoordinatePoint
   timestamp: string
+  timestampMs: number | null
+  sortOrder: number
   summary: string
   content: string
   urgency?: string
   confidence?: string
   rawSubmissionId: string
+}
+
+export type RelatedEvidenceItem = {
+  evidence: Evidence
+  reasons: RelatedReason[]
+  sharedPeople: string[]
 }
 
 export type RawAnswer = {

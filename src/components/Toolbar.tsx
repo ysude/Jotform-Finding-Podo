@@ -23,7 +23,7 @@ export function Toolbar({
   onFiltersChange,
 }: ToolbarProps) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm">
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <input
           value={filters.search}
