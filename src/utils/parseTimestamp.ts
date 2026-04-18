@@ -10,16 +10,24 @@ export function parseTimestamp(value: string): number | null {
   )
 
   if (!match) {
+    console.warn("Invalid timestamp format", value)
     return null
   }
 
   const [, day, month, year, hours, minutes] = match
 
-  return new Date(
+  const timestamp = new Date(
     Number(year),
     Number(month) - 1,
     Number(day),
     Number(hours),
     Number(minutes)
   ).getTime()
+
+  if (!Number.isFinite(timestamp)) {
+    console.warn("Invalid timestamp value", value)
+    return null
+  }
+
+  return timestamp
 }

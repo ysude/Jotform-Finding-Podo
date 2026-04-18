@@ -54,7 +54,7 @@ export function CaseOverview({
                       {message.title}
                     </div>
                     <div className="text-xs text-slate-500">
-                      {message.timestamp}
+                      {message.timestamp || "No timestamp"}
                     </div>
                   </div>
                   <p className="mt-2 text-sm text-slate-600">{message.content}</p>
@@ -100,7 +100,7 @@ export function CaseOverview({
                   Time
                 </div>
                 <div className="mt-1 text-sm font-medium text-slate-950">
-                  {lastSighting.timestamp}
+                  {lastSighting.timestamp || "No timestamp"}
                 </div>
               </div>
               <div className="rounded-2xl bg-slate-50 p-4">
@@ -108,7 +108,7 @@ export function CaseOverview({
                   Location
                 </div>
                 <div className="mt-1 text-sm font-medium text-slate-950">
-                  {lastSighting.location}
+                  {lastSighting.location || "No location available."}
                 </div>
               </div>
             </div>

@@ -26,23 +26,25 @@ export function ContextTimeline({
       <div className="mt-5 space-y-3">
         {evidence.length > 0 ? (
           evidence.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onOpenEvidence(item.id)}
-            className="block w-full rounded-2xl border border-slate-200 px-4 py-3 text-left hover:border-slate-300"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="text-xs uppercase tracking-[0.18em] text-slate-500">
-                {item.type}
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onOpenEvidence(item.id)}
+              className="block w-full rounded-2xl border border-slate-200 px-4 py-3 text-left hover:border-slate-300"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                  {item.type}
+                </div>
+                <div className="text-xs text-slate-500">
+                  {item.timestamp || "No timestamp"}
+                </div>
               </div>
-              <div className="text-xs text-slate-500">{item.timestamp}</div>
-            </div>
-            <div className="mt-1 text-sm font-semibold text-jotform-navy">
-              {item.title}
-            </div>
-            <p className="mt-1 text-sm text-slate-600">{item.summary}</p>
-          </button>
+              <div className="mt-1 text-sm font-semibold text-jotform-navy">
+                {item.title}
+              </div>
+              <p className="mt-1 text-sm text-slate-600">{item.summary}</p>
+            </button>
           ))
         ) : (
           <p className="text-sm text-slate-500">

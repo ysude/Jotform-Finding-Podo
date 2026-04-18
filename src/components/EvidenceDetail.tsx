@@ -78,7 +78,7 @@ export function EvidenceDetail({
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-slate-500">
         <span>{evidence.type}</span>
-        <span>{evidence.timestamp}</span>
+        <span>{evidence.timestamp || "No timestamp"}</span>
       </div>
 
       <h2 className="mt-2 text-2xl font-semibold text-jotform-navy">
@@ -89,14 +89,12 @@ export function EvidenceDetail({
         <p>{evidence.content}</p>
         <p>
           <span className="font-medium text-slate-900">Location:</span>{" "}
-          {evidence.location || "Unknown"}
+          {evidence.location || "Unknown location"}
         </p>
-        {evidence.coordinates ? (
-          <p>
-            <span className="font-medium text-slate-900">Coordinates:</span>{" "}
-            {evidence.coordinates}
-          </p>
-        ) : null}
+        <p>
+          <span className="font-medium text-slate-900">Coordinates:</span>{" "}
+          {evidence.coordinates || "No coordinates available."}
+        </p>
         {evidence.urgency ? (
           <p>
             <span className="font-medium text-slate-900">Urgency:</span>{" "}
@@ -134,16 +132,20 @@ export function EvidenceDetail({
       <div className="mt-6">
         <h3 className="text-sm font-semibold text-slate-900">People</h3>
         <div className="mt-3 flex flex-wrap gap-2">
-          {evidence.people.map((person) => (
-            <button
-              key={person}
-              type="button"
-              onClick={() => onPersonClick(person)}
-              className="rounded-full bg-jotform-yellow/25 px-3 py-1 text-sm text-jotform-navy"
-            >
-              {person}
-            </button>
-          ))}
+          {evidence.people.length > 0 ? (
+            evidence.people.map((person) => (
+              <button
+                key={person}
+                type="button"
+                onClick={() => onPersonClick(person)}
+                className="rounded-full bg-jotform-yellow/25 px-3 py-1 text-sm text-jotform-navy"
+              >
+                {person}
+              </button>
+            ))
+          ) : (
+            <p className="text-sm text-slate-500">No people listed.</p>
+          )}
         </div>
       </div>
 
@@ -180,7 +182,7 @@ export function EvidenceDetail({
                           {item.evidence.type}
                         </div>
                         <div className="text-xs text-slate-500">
-                          {item.evidence.timestamp}
+                          {item.evidence.timestamp || "No timestamp"}
                         </div>
                       </div>
                       <div className="mt-1 text-sm font-medium text-slate-900">

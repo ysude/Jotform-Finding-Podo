@@ -30,6 +30,10 @@ const DEFAULT_ZOOM = 12
 const FOCUSED_ZOOM = 14
 
 function previewText(value: string, maxLength = 120) {
+  if (!value) {
+    return "No additional context available."
+  }
+
   if (value.length <= maxLength) {
     return value
   }
@@ -205,8 +209,12 @@ export function MapView({
                       <div className="text-slate-500">
                         {location.records.length} route events
                       </div>
-                      <div>{selectedLocationRecord.people.join(", ") || "No linked people"}</div>
-                      <div className="text-slate-500">{selectedLocationRecord.timestamp}</div>
+                      <div>
+                        {selectedLocationRecord.people.join(", ") || "No people listed"}
+                      </div>
+                      <div className="text-slate-500">
+                        {selectedLocationRecord.timestamp || "No timestamp"}
+                      </div>
                       <p className="text-slate-700">
                         {previewText(
                           selectedLocationRecord.summary || selectedLocationRecord.content
@@ -241,7 +249,7 @@ export function MapView({
                   <span className="font-semibold text-slate-950">
                     {location.order}.
                   </span>{" "}
-                  {location.label}
+                  {location.label || "Unknown location"}
                 </div>
               ))}
             </div>

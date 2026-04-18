@@ -37,15 +37,21 @@ export function EvidenceList({
       </div>
 
       <div className="space-y-3">
-        {evidence.map((item) => (
-          <EvidenceListItem
-            key={item.id}
-            evidence={item}
-            isSelected={item.id === selectedEvidenceId}
-            onSelect={onSelectEvidence}
-            searchQuery={searchQuery}
-          />
-        ))}
+        {evidence.length > 0 ? (
+          evidence.map((item) => (
+            <EvidenceListItem
+              key={item.id}
+              evidence={item}
+              isSelected={item.id === selectedEvidenceId}
+              onSelect={onSelectEvidence}
+              searchQuery={searchQuery}
+            />
+          ))
+        ) : (
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-6 text-sm text-slate-500">
+            No records found.
+          </div>
+        )}
       </div>
 
       {hasMore ? (

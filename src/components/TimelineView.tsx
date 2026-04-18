@@ -62,36 +62,44 @@ export function TimelineView({
       </div>
 
       <div className="mt-6 space-y-4">
-        {visibleEvidence.map((item, index) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onSelectEvidence(item.id)}
-            className="flex w-full gap-4 rounded-2xl p-3 text-left transition hover:bg-slate-50"
-          >
-            <div className="flex w-10 flex-col items-center">
-              <div className="mt-1 h-3 w-3 rounded-full bg-jotform-orange" />
-              {index < visibleEvidence.length - 1 ? (
-                <div className="mt-2 h-full w-px bg-slate-200" />
-              ) : null}
-            </div>
-
-            <div className="min-w-0 flex-1 pb-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="text-xs uppercase tracking-[0.18em] text-slate-500">
-                  {item.type}
-                </div>
-                <div className="text-xs text-slate-500">{item.timestamp}</div>
+        {visibleEvidence.length > 0 ? (
+          visibleEvidence.map((item, index) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onSelectEvidence(item.id)}
+              className="flex w-full gap-4 rounded-2xl p-3 text-left transition hover:bg-slate-50"
+            >
+              <div className="flex w-10 flex-col items-center">
+                <div className="mt-1 h-3 w-3 rounded-full bg-jotform-orange" />
+                {index < visibleEvidence.length - 1 ? (
+                  <div className="mt-2 h-full w-px bg-slate-200" />
+                ) : null}
               </div>
 
-              <h3 className="mt-1 text-sm font-semibold text-jotform-navy">
-                {item.title}
-              </h3>
-              <p className="mt-1 text-sm text-slate-600">{item.summary}</p>
-              <div className="mt-2 text-xs text-slate-500">{item.location}</div>
-            </div>
-          </button>
-        ))}
+              <div className="min-w-0 flex-1 pb-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                    {item.type}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {item.timestamp || "No timestamp"}
+                  </div>
+                </div>
+
+                <h3 className="mt-1 text-sm font-semibold text-jotform-navy">
+                  {item.title}
+                </h3>
+                <p className="mt-1 text-sm text-slate-600">{item.summary}</p>
+                <div className="mt-2 text-xs text-slate-500">
+                  {item.location || "No location available."}
+                </div>
+              </div>
+            </button>
+          ))
+        ) : (
+          <p className="text-sm text-slate-500">No records found.</p>
+        )}
       </div>
     </section>
   )

@@ -33,7 +33,9 @@ export function EvidenceListItem({
             <SearchHighlightedText text={evidence.title} query={searchQuery} />
           </h3>
         </div>
-        <div className="text-xs text-slate-500">{evidence.timestamp}</div>
+        <div className="text-xs text-slate-500">
+          {evidence.timestamp || "No timestamp"}
+        </div>
       </div>
 
       <p className="mt-2 line-clamp-2 text-sm text-slate-600">
@@ -41,22 +43,26 @@ export function EvidenceListItem({
       </p>
 
       <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
-        {evidence.location ? (
-          <span className="rounded-full bg-jotform-blue/10 px-2 py-1 text-jotform-navy">
-            <SearchHighlightedText
-              text={evidence.location}
-              query={searchQuery}
-            />
+        <span className="rounded-full bg-jotform-blue/10 px-2 py-1 text-jotform-navy">
+          <SearchHighlightedText
+            text={evidence.location || "Unknown location"}
+            query={searchQuery}
+          />
+        </span>
+        {evidence.people.length > 0 ? (
+          evidence.people.map((person) => (
+            <span
+              key={person}
+              className="rounded-full bg-jotform-yellow/20 px-2 py-1 text-jotform-navy"
+            >
+              <SearchHighlightedText text={person} query={searchQuery} />
+            </span>
+          ))
+        ) : (
+          <span className="rounded-full bg-slate-100 px-2 py-1 text-slate-600">
+            No people listed
           </span>
-        ) : null}
-        {evidence.people.map((person) => (
-          <span
-            key={person}
-            className="rounded-full bg-jotform-yellow/20 px-2 py-1 text-jotform-navy"
-          >
-            <SearchHighlightedText text={person} query={searchQuery} />
-          </span>
-        ))}
+        )}
         {evidence.urgency ? (
           <span className="rounded-full bg-jotform-orange/15 px-2 py-1 text-jotform-orange">
             urgency {evidence.urgency}
@@ -68,7 +74,7 @@ export function EvidenceListItem({
           </span>
         ) : null}
         <span className="rounded-full bg-slate-100 px-2 py-1 text-slate-600">
-          {evidence.people.length} people
+          {evidence.people.length || 0} people
         </span>
       </div>
     </button>

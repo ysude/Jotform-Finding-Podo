@@ -33,12 +33,13 @@ export function useInvestigationData() {
         status: "success",
       })
     } catch (error) {
+      console.error("Failed to load investigation data", error)
       setState({
         data: null,
         error:
           error instanceof Error
             ? error.message
-            : "Failed to load investigation data",
+            : "Failed to load investigation data.",
         status: "error",
       })
     }

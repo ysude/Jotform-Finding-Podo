@@ -4,8 +4,10 @@ import { ContextTimeline } from "../components/ContextTimeline"
 import { DashboardSummaryStrip } from "../components/DashboardSummaryStrip"
 import { EvidenceDetail } from "../components/EvidenceDetail"
 import { EvidenceList } from "../components/EvidenceList"
+import { EmptyState } from "../components/feedback/EmptyState"
+import { ErrorState } from "../components/feedback/ErrorState"
+import { LoadingState } from "../components/feedback/LoadingState"
 import { Header } from "../components/Header"
-import { StatePanel } from "../components/StatePanel"
 import { Toolbar } from "../components/Toolbar"
 import { useInvestigationData } from "../hooks/useInvestigationData"
 import type { AppView, EvidenceFilters } from "../types/evidence"
@@ -233,23 +235,18 @@ export default function App() {
         />
 
         {isLoading ? (
-          <StatePanel
-            title="Loading records"
-            message="Fetching investigation data and preparing evidence links."
-          />
+          <LoadingState message="Loading data..." />
         ) : null}
 
         {isError && error ? (
-          <StatePanel
-            title="Could not load data"
-            message={error}
-            actionLabel="Try again"
-            onAction={retry}
+          <ErrorState
+            message={error || "Failed to load investigation data."}
+            onRetry={retry}
           />
         ) : null}
 
         {hasNoData ? (
-          <StatePanel
+          <EmptyState
             title="No records found"
             message="The dataset loaded successfully but does not contain any evidence."
           />
@@ -285,9 +282,10 @@ export default function App() {
                 />
 
                 {hasNoResults ? (
-                  <StatePanel
+                  <EmptyState
                     title="No matching records"
                     message="Try clearing one or more filters to broaden the investigation."
+                    icon="No results"
                     actionLabel="Clear filters"
                     onAction={clearFilters}
                   />

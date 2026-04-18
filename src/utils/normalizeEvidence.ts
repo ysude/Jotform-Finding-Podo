@@ -4,11 +4,30 @@ import { normalizeName } from "./normalizeName"
 import { parseCoordinates } from "./parseCoordinates"
 import { parseTimestamp } from "./parseTimestamp"
 
+const FALLBACK_LOCATION = "Unknown location"
+const FALLBACK_TIMESTAMP = "No timestamp"
+
 function splitPeople(value: string): string[] {
   return value
     .split(",")
     .map((item) => normalizeName(item))
     .filter(Boolean)
+}
+
+function safeSubmissionList(
+  value: RawSubmission[] | undefined,
+  key: keyof RawInvestigationData
+) {
+  if (Array.isArray(value)) {
+    return value
+  }
+
+  console.warn(`Expected an array for ${key}, received`, value)
+  return []
+}
+
+function cleanPeople(people: string[]) {
+  return [...new Set(people.filter(Boolean))]
 }
 
 function buildBaseRecord(
@@ -18,17 +37,18 @@ function buildBaseRecord(
 ): Omit<Evidence, "title" | "people" | "summary" | "content"> {
   const coordinates = extractAnswer(submission, "coordinates")
   const timestamp = extractAnswer(submission, "timestamp")
+  const location = extractAnswer(submission, "location")
 
   return {
-    id: `${type}:${submission.id}`,
+    id: `${type}:${submission.id || `unknown-${sortOrder}`}`,
     type,
-    location: extractAnswer(submission, "location"),
+    location: location || FALLBACK_LOCATION,
     coordinates: coordinates || undefined,
     coordinatesPoint: parseCoordinates(coordinates),
-    timestamp,
+    timestamp: timestamp || FALLBACK_TIMESTAMP,
     timestampMs: parseTimestamp(timestamp),
     sortOrder,
-    rawSubmissionId: submission.id,
+    rawSubmissionId: submission.id || `unknown-${sortOrder}`,
     urgency: undefined,
     confidence: undefined,
   }
@@ -37,64 +57,76 @@ function buildBaseRecord(
 export function normalizeEvidence(data: RawInvestigationData): Evidence[] {
   let sortOrder = 0
 
-  const checkins = data.checkins.map((submission) => {
+  const checkins = safeSubmissionList(data.checkins, "checkins").map((submission) => {
     const person = normalizeName(extractAnswer(submission, "personName"))
     const note = extractAnswer(submission, "note")
 
     return {
       ...buildBaseRecord(submission, "checkin", sortOrder++),
-      title: `${person} checked in`,
-      people: [person],
+      title: person ? `${person} checked in` : "Unknown person checked in",
+      people: cleanPeople([person]),
       summary: note || "Check-in record",
       content: note || "No additional note.",
     }
   })
 
-  const messages = data.messages.map((submission) => {
+  const messages = safeSubmissionList(data.messages, "messages").map((submission) => {
     const sender = normalizeName(extractAnswer(submission, "senderName"))
     const recipient = normalizeName(extractAnswer(submission, "recipientName"))
     const text = extractAnswer(submission, "text")
     const urgency = extractAnswer(submission, "urgency")
+    const title =
+      sender && recipient
+        ? `${sender} -> ${recipient}`
+        : sender || recipient
+          ? `${sender || recipient} message`
+          : "Unknown message"
 
     return {
       ...buildBaseRecord(submission, "message", sortOrder++),
-      title: `${sender} -> ${recipient}`,
-      people: [sender, recipient].filter(Boolean),
-      summary: text,
+      title,
+      people: cleanPeople([sender, recipient]),
+      summary: text || "No message preview.",
       content: text || "No message text.",
       urgency: urgency || undefined,
     }
   })
 
-  const sightings = data.sightings.map((submission) => {
+  const sightings = safeSubmissionList(data.sightings, "sightings").map((submission) => {
     const person = normalizeName(extractAnswer(submission, "personName"))
     const seenWith = normalizeName(extractAnswer(submission, "seenWith"))
     const note = extractAnswer(submission, "note")
+    const title =
+      person && seenWith
+        ? `${person} seen with ${seenWith}`
+        : person
+          ? `${person} sighting`
+          : "Unknown sighting"
 
     return {
       ...buildBaseRecord(submission, "sighting", sortOrder++),
-      title: `${person} seen with ${seenWith}`,
-      people: [person, seenWith].filter(Boolean),
+      title,
+      people: cleanPeople([person, seenWith]),
       summary: note || "Sighting record",
       content: note || "No additional note.",
     }
   })
 
-  const notes = data.notes.map((submission) => {
+  const notes = safeSubmissionList(data.notes, "notes").map((submission) => {
     const author = normalizeName(extractAnswer(submission, "authorName"))
     const note = extractAnswer(submission, "note")
     const mentionedPeople = splitPeople(extractAnswer(submission, "mentionedPeople"))
 
     return {
       ...buildBaseRecord(submission, "note", sortOrder++),
-      title: `${author}'s note`,
-      people: [author, ...mentionedPeople].filter(Boolean),
-      summary: note,
+      title: author ? `${author}'s note` : "Unattributed note",
+      people: cleanPeople([author, ...mentionedPeople]),
+      summary: note || "No note preview.",
       content: note || "No note content.",
     }
   })
 
-  const tips = data.tips.map((submission) => {
+  const tips = safeSubmissionList(data.tips, "tips").map((submission) => {
     const suspect = normalizeName(extractAnswer(submission, "suspectName"))
     const tip = extractAnswer(submission, "tip")
     const confidence = extractAnswer(submission, "confidence")
@@ -102,8 +134,8 @@ export function normalizeEvidence(data: RawInvestigationData): Evidence[] {
     return {
       ...buildBaseRecord(submission, "tip", sortOrder++),
       title: suspect ? `Tip about ${suspect}` : "Anonymous tip",
-      people: suspect ? [suspect] : [],
-      summary: tip,
+      people: cleanPeople(suspect ? [suspect] : []),
+      summary: tip || "No tip preview.",
       content: tip || "No tip content.",
       confidence: confidence || undefined,
     }

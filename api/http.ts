@@ -5,6 +5,18 @@ type FetchJsonOptions = {
   init?: RequestInit
 }
 
+function getHttpErrorMessage(status: number) {
+  if (status === 404) {
+    return "Resource not found"
+  }
+
+  if (status >= 500) {
+    return "Server error"
+  }
+
+  return `Request failed (${status})`
+}
+
 function buildUrl(url: string, query?: Record<string, QueryValue>) {
   if (!query) {
     return url
@@ -33,15 +45,31 @@ export async function fetchJson<T>(
   url: string,
   options: FetchJsonOptions = {}
 ): Promise<T> {
-  const response = await fetch(buildUrl(url, options.query), options.init)
+  let response: Response
 
-  if (!response.ok) {
-    const message = await response.text()
-
-    throw new Error(
-      message || `Request failed with status ${response.status}`
-    )
+  try {
+    response = await fetch(buildUrl(url, options.query), options.init)
+  } catch (error) {
+    console.error("Network error while fetching JSON", { url, error })
+    throw new Error("Network error")
   }
 
-  return response.json() as Promise<T>
+  if (!response.ok) {
+    let message = ""
+
+    try {
+      message = (await response.text()).trim()
+    } catch (error) {
+      console.warn("Could not read error response body", { url, error })
+    }
+
+    throw new Error(message || getHttpErrorMessage(response.status))
+  }
+
+  try {
+    return (await response.json()) as T
+  } catch (error) {
+    console.error("Invalid JSON response", { url, error })
+    throw new Error("Invalid server response")
+  }
 }
