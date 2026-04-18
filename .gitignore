@@ -1,0 +1,6 @@
+node_modules
+dist
+.DS_Store
+
+api/jotform.config.local.ts
+prep-material/*.md
