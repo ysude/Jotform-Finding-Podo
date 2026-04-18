@@ -4,6 +4,7 @@ import {
   MapContainer,
   Popup,
   TileLayer,
+  Tooltip,
   useMap,
 } from "react-leaflet"
 import type { Evidence } from "../types/evidence"
@@ -12,7 +13,16 @@ import { getMappableEvidence } from "../utils/getMappableEvidence"
 type MapViewProps = {
   evidence: Evidence[]
   selectedEvidence: Evidence | null
-  onSelectEvidence: (id: string) => void
+  variant?: "default" | "compact"
+}
+
+type MappedLocation = {
+  key: string
+  label: string
+  order: number
+  lat: number
+  lng: number
+  records: Evidence[]
 }
 
 const ANKARA_CENTER: [number, number] = [39.9334, 32.8597]
@@ -47,32 +57,90 @@ function MapFocusController({ selectedEvidence }: { selectedEvidence: Evidence |
   return null
 }
 
+function buildMappedLocations(evidence: Evidence[]): {
+  locations: MappedLocation[]
+  routeSequence: number[]
+} {
+  const groupedLocations = new Map<string, MappedLocation>()
+  const routeSequence: number[] = []
+
+  for (const item of evidence) {
+    if (!item.coordinatesPoint) {
+      continue
+    }
+
+    const key = `${item.location}-${item.coordinatesPoint.lat}-${item.coordinatesPoint.lng}`
+    const existingLocation = groupedLocations.get(key)
+
+    if (existingLocation) {
+      existingLocation.records.push(item)
+      routeSequence.push(existingLocation.order)
+      continue
+    }
+
+    const nextLocation: MappedLocation = {
+      key,
+      label: item.location || `Unknown stop ${groupedLocations.size + 1}`,
+      order: groupedLocations.size + 1,
+      lat: item.coordinatesPoint.lat,
+      lng: item.coordinatesPoint.lng,
+      records: [item],
+    }
+
+    groupedLocations.set(key, nextLocation)
+    routeSequence.push(nextLocation.order)
+  }
+
+  return {
+    locations: [...groupedLocations.values()],
+    routeSequence,
+  }
+}
+
+function compressRouteSequence(routeSequence: number[]) {
+  return routeSequence.filter(
+    (stop, index) => index === 0 || stop !== routeSequence[index - 1]
+  )
+}
+
 export function MapView({
   evidence,
   selectedEvidence,
-  onSelectEvidence,
+  variant = "default",
 }: MapViewProps) {
   const mappableEvidence = useMemo(() => getMappableEvidence(evidence), [evidence])
+  const { locations, routeSequence: rawRouteSequence } = useMemo(
+    () => buildMappedLocations(mappableEvidence),
+    [mappableEvidence]
+  )
+  const routeSequence = useMemo(
+    () => compressRouteSequence(rawRouteSequence),
+    [rawRouteSequence]
+  )
+  const mapHeightClass =
+    variant === "compact"
+      ? "h-[320px] md:h-[380px] xl:h-[420px]"
+      : "aspect-video w-full"
 
   return (
-    <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="h-full rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
             Investigation map
           </p>
           <h2 className="mt-1 text-xl font-semibold text-slate-950">
-            Evidence markers across Ankara
+            Numbered route locations across Ankara
           </h2>
         </div>
         <p className="text-sm text-slate-500">
-          {mappableEvidence.length} mappable records
+          {locations.length} mapped locations
         </p>
       </div>
 
-      {mappableEvidence.length > 0 ? (
+      {locations.length > 0 ? (
         <div className="mt-6 overflow-hidden rounded-[1.5rem] border border-slate-200">
-          <div className="aspect-video w-full">
+          <div className={mapHeightClass}>
             <MapContainer
               center={ANKARA_CENTER}
               zoom={DEFAULT_ZOOM}
@@ -86,54 +154,69 @@ export function MapView({
 
               <MapFocusController selectedEvidence={selectedEvidence} />
 
-              {mappableEvidence.map((item) => (
+              {locations.map((location) => {
+                const selectedLocationRecord =
+                  location.records.find((record) => record.id === selectedEvidence?.id) ??
+                  location.records[0]
+
+                return (
                 <CircleMarker
-                  key={item.id}
+                  key={location.key}
                   center={[
-                    item.coordinatesPoint!.lat,
-                    item.coordinatesPoint!.lng,
+                    location.lat,
+                    location.lng,
                   ]}
-                  eventHandlers={{
-                    click: () => onSelectEvidence(item.id),
-                  }}
                   pathOptions={{
                     color:
-                      selectedEvidence?.id === item.id
+                      location.records.some((record) => record.id === selectedEvidence?.id)
                         ? "rgb(217 119 6)"
                         : "rgb(15 23 42)",
                     fillColor:
-                      selectedEvidence?.id === item.id
+                      location.records.some((record) => record.id === selectedEvidence?.id)
                         ? "rgb(251 191 36)"
                         : "rgb(59 130 246)",
                     fillOpacity: 0.75,
-                    weight: selectedEvidence?.id === item.id ? 3 : 2,
+                    weight: location.records.some((record) => record.id === selectedEvidence?.id)
+                      ? 3
+                      : 2,
                   }}
-                  radius={selectedEvidence?.id === item.id ? 10 : 8}
+                  radius={
+                    location.records.some((record) => record.id === selectedEvidence?.id)
+                      ? 12
+                      : 10
+                  }
                 >
+                  <Tooltip
+                    permanent
+                    direction="center"
+                    offset={[0, 0]}
+                    className="map-stop-label"
+                  >
+                    {location.order}
+                  </Tooltip>
                   <Popup>
                     <div className="space-y-2 text-sm text-slate-800">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        {item.type}
+                        stop {location.order}
                       </div>
                       <div className="font-semibold text-slate-950">
-                        {item.location || "Unknown location"}
+                        {location.label || "Unknown location"}
                       </div>
-                      <div>{item.people.join(", ") || "No linked people"}</div>
-                      <div className="text-slate-500">{item.timestamp}</div>
+                      <div className="text-slate-500">
+                        {location.records.length} route events
+                      </div>
+                      <div>{selectedLocationRecord.people.join(", ") || "No linked people"}</div>
+                      <div className="text-slate-500">{selectedLocationRecord.timestamp}</div>
                       <p className="text-slate-700">
-                        {previewText(item.summary || item.content)}
+                        {previewText(
+                          selectedLocationRecord.summary || selectedLocationRecord.content
+                        )}
                       </p>
-                      <button
-                        type="button"
-                        onClick={() => onSelectEvidence(item.id)}
-                        className="rounded-full bg-slate-950 px-3 py-1.5 text-xs font-medium text-white"
-                      >
-                        Open record
-                      </button>
                     </div>
                   </Popup>
                 </CircleMarker>
-              ))}
+                )
+              })}
             </MapContainer>
           </div>
         </div>
@@ -142,6 +225,63 @@ export function MapView({
           No valid coordinates were found for the current evidence set.
         </p>
       )}
+
+      {locations.length > 0 ? (
+        <div className="mt-5 space-y-4">
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Numbered locations
+            </h3>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {locations.map((location) => (
+                <div
+                  key={location.key}
+                  className="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+                >
+                  <span className="font-semibold text-slate-950">
+                    {location.order}.
+                  </span>{" "}
+                  {location.label}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Route sequence
+            </h3>
+            <div className="mt-2 overflow-x-auto rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+              <div className="flex min-w-max items-center gap-3">
+                {routeSequence.map((stop, index) => (
+                  <div key={`${stop}-${index}`} className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-900 bg-white text-lg font-semibold text-slate-950">
+                      {stop}
+                    </div>
+                    {index < routeSequence.length - 1 ? (
+                      <div className="flex items-center text-slate-700">
+                        <svg
+                          aria-hidden="true"
+                          viewBox="0 0 24 24"
+                          className="h-5 w-5 shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M5 12h14" />
+                          <path d="m13 5 7 7-7 7" />
+                        </svg>
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   )
 }
