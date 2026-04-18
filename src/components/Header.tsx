@@ -16,10 +16,10 @@ export function Header({ activeView, recordCount, onViewChange }: HeaderProps) {
     <header className="rounded-[2rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-sm font-medium uppercase tracking-[0.28em] text-amber-700">
+          <p className="text-sm font-medium uppercase tracking-[0.28em] text-jotform-orange">
             Missing Podo
           </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-jotform-navy">
             Ankara Investigation Console
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-slate-600">
@@ -28,11 +28,11 @@ export function Header({ activeView, recordCount, onViewChange }: HeaderProps) {
           </p>
         </div>
 
-        <div className="rounded-2xl bg-slate-100 px-4 py-3 text-right">
+        <div className="rounded-2xl bg-jotform-blue/10 px-4 py-3 text-right">
           <div className="text-xs uppercase tracking-[0.18em] text-slate-500">
             Active records
           </div>
-          <div className="mt-1 text-2xl font-semibold text-slate-950">
+          <div className="mt-1 text-2xl font-semibold text-jotform-navy">
             {recordCount}
           </div>
         </div>
@@ -46,8 +46,8 @@ export function Header({ activeView, recordCount, onViewChange }: HeaderProps) {
             onClick={() => onViewChange(item.value)}
             className={`rounded-full px-4 py-2 text-sm font-medium transition ${
               activeView === item.value
-                ? "bg-slate-950 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                ? "bg-jotform-navy text-white"
+                : "bg-jotform-blue/10 text-jotform-navy hover:bg-jotform-blue/20"
             }`}
           >
             {item.label}

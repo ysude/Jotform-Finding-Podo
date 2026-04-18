@@ -28,7 +28,7 @@ export function SearchHighlightedText({
         part.toLocaleLowerCase().includes(trimmedQuery.toLocaleLowerCase()) ? (
           <mark
             key={`${part}-${index}`}
-            className="rounded bg-amber-200/70 px-0.5 text-inherit"
+            className="rounded bg-jotform-yellow/50 px-0.5 text-inherit"
           >
             {part}
           </mark>

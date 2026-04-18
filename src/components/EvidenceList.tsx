@@ -27,7 +27,7 @@ export function EvidenceList({
           <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
             Evidence feed
           </p>
-          <h2 className="mt-1 text-lg font-semibold text-slate-950">
+          <h2 className="mt-1 text-lg font-semibold text-jotform-navy">
             Filtered investigation records
           </h2>
         </div>
@@ -53,7 +53,7 @@ export function EvidenceList({
           <button
             type="button"
             onClick={onLoadMore}
-            className="rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white"
+            className="rounded-full bg-jotform-navy px-4 py-2 text-sm font-medium text-white"
           >
             Load more
           </button>

@@ -129,7 +129,7 @@ export function MapView({
           <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
             Investigation map
           </p>
-          <h2 className="mt-1 text-xl font-semibold text-slate-950">
+          <h2 className="mt-1 text-xl font-semibold text-jotform-navy">
             Numbered route locations across Ankara
           </h2>
         </div>
@@ -169,12 +169,12 @@ export function MapView({
                   pathOptions={{
                     color:
                       location.records.some((record) => record.id === selectedEvidence?.id)
-                        ? "rgb(217 119 6)"
-                        : "rgb(15 23 42)",
+                        ? "#FF6100"
+                        : "#0A1551",
                     fillColor:
                       location.records.some((record) => record.id === selectedEvidence?.id)
-                        ? "rgb(251 191 36)"
-                        : "rgb(59 130 246)",
+                        ? "#FFB629"
+                        : "#0099FF",
                     fillOpacity: 0.75,
                     weight: location.records.some((record) => record.id === selectedEvidence?.id)
                       ? 3
@@ -199,7 +199,7 @@ export function MapView({
                       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                         stop {location.order}
                       </div>
-                      <div className="font-semibold text-slate-950">
+                      <div className="font-semibold text-jotform-navy">
                         {location.label || "Unknown location"}
                       </div>
                       <div className="text-slate-500">
@@ -251,15 +251,15 @@ export function MapView({
             <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
               Route sequence
             </h3>
-            <div className="mt-2 overflow-x-auto rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+            <div className="mt-2 overflow-x-auto rounded-2xl border border-slate-200 bg-jotform-blue/5 px-4 py-4">
               <div className="flex min-w-max items-center gap-3">
                 {routeSequence.map((stop, index) => (
                   <div key={`${stop}-${index}`} className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-900 bg-white text-lg font-semibold text-slate-950">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-jotform-navy bg-white text-lg font-semibold text-jotform-navy">
                       {stop}
                     </div>
                     {index < routeSequence.length - 1 ? (
-                      <div className="flex items-center text-slate-700">
+                      <div className="flex items-center text-jotform-orange">
                         <svg
                           aria-hidden="true"
                           viewBox="0 0 24 24"

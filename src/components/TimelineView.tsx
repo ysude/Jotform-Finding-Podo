@@ -29,7 +29,7 @@ export function TimelineView({
           <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
             Timeline
           </p>
-          <h2 className="mt-1 text-xl font-semibold text-slate-950">
+          <h2 className="mt-1 text-xl font-semibold text-jotform-navy">
             Podo&apos;s route from oldest to newest
           </h2>
         </div>
@@ -39,22 +39,22 @@ export function TimelineView({
       <div className="mt-5 flex flex-wrap gap-3">
         <button
           type="button"
-          onClick={() => setActiveTab("recent")}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-            activeTab === "recent"
-              ? "bg-slate-950 text-white"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            onClick={() => setActiveTab("recent")}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              activeTab === "recent"
+              ? "bg-jotform-orange text-white"
+              : "bg-jotform-yellow/20 text-jotform-navy hover:bg-jotform-yellow/35"
           }`}
         >
           Recent 5 movements
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab("all")}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-            activeTab === "all"
-              ? "bg-slate-950 text-white"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            onClick={() => setActiveTab("all")}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              activeTab === "all"
+              ? "bg-jotform-orange text-white"
+              : "bg-jotform-yellow/20 text-jotform-navy hover:bg-jotform-yellow/35"
           }`}
         >
           Full timeline
@@ -70,7 +70,7 @@ export function TimelineView({
             className="flex w-full gap-4 rounded-2xl p-3 text-left transition hover:bg-slate-50"
           >
             <div className="flex w-10 flex-col items-center">
-              <div className="mt-1 h-3 w-3 rounded-full bg-amber-500" />
+              <div className="mt-1 h-3 w-3 rounded-full bg-jotform-orange" />
               {index < visibleEvidence.length - 1 ? (
                 <div className="mt-2 h-full w-px bg-slate-200" />
               ) : null}
@@ -84,7 +84,7 @@ export function TimelineView({
                 <div className="text-xs text-slate-500">{item.timestamp}</div>
               </div>
 
-              <h3 className="mt-1 text-sm font-semibold text-slate-950">
+              <h3 className="mt-1 text-sm font-semibold text-jotform-navy">
                 {item.title}
               </h3>
               <p className="mt-1 text-sm text-slate-600">{item.summary}</p>

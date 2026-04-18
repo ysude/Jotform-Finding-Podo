@@ -16,7 +16,7 @@ export function ContextTimeline({
           <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
             Time context
           </p>
-          <h2 className="mt-1 text-xl font-semibold text-slate-950">
+          <h2 className="mt-1 text-xl font-semibold text-jotform-navy">
             Events around the same time
           </h2>
         </div>
@@ -38,7 +38,7 @@ export function ContextTimeline({
               </div>
               <div className="text-xs text-slate-500">{item.timestamp}</div>
             </div>
-            <div className="mt-1 text-sm font-semibold text-slate-950">
+            <div className="mt-1 text-sm font-semibold text-jotform-navy">
               {item.title}
             </div>
             <p className="mt-1 text-sm text-slate-600">{item.summary}</p>

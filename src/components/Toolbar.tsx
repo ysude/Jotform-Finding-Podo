@@ -53,7 +53,7 @@ export function Toolbar({
           <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
             Investigation controls
           </p>
-          <h2 className="mt-1 text-lg font-semibold text-slate-950">
+          <h2 className="mt-1 text-lg font-semibold text-jotform-navy">
             Search, filter, and prioritize the evidence feed
           </h2>
         </div>
@@ -61,7 +61,7 @@ export function Toolbar({
         <button
           type="button"
           onClick={onClearFilters}
-          className="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200"
+          className="rounded-full bg-jotform-yellow/20 px-4 py-2 text-sm font-medium text-jotform-navy hover:bg-jotform-yellow/35"
         >
           Clear filters
         </button>
@@ -77,8 +77,8 @@ export function Toolbar({
             }
             className={`rounded-full px-4 py-2 text-sm font-medium transition ${
               filters.quickFilter === option.value
-                ? "bg-slate-950 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                ? "bg-jotform-blue text-white"
+                : "bg-jotform-blue/10 text-jotform-navy hover:bg-jotform-blue/20"
             }`}
           >
             {option.label}

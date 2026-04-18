@@ -50,7 +50,7 @@ export function CaseOverview({
                   className="block w-full rounded-2xl border border-slate-200 px-4 py-3 text-left hover:border-slate-300"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="text-sm font-semibold text-slate-950">
+                    <div className="text-sm font-semibold text-jotform-navy">
                       {message.title}
                     </div>
                     <div className="text-xs text-slate-500">
@@ -77,7 +77,7 @@ export function CaseOverview({
           <>
             <div className="mt-2 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0">
-                <h2 className="text-2xl font-semibold text-slate-950">
+                <h2 className="text-2xl font-semibold text-jotform-navy">
                   {lastSighting.title}
                 </h2>
                 <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-600">
@@ -88,7 +88,7 @@ export function CaseOverview({
               <button
                 type="button"
                 onClick={() => onOpenDashboard(lastSighting.id)}
-                className="rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white"
+                className="rounded-full bg-jotform-navy px-4 py-2 text-sm font-medium text-white"
               >
                 Open in evidence dashboard
               </button>

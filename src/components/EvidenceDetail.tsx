@@ -81,7 +81,7 @@ export function EvidenceDetail({
         <span>{evidence.timestamp}</span>
       </div>
 
-      <h2 className="mt-2 text-2xl font-semibold text-slate-900">
+      <h2 className="mt-2 text-2xl font-semibold text-jotform-navy">
         {evidence.title}
       </h2>
 
@@ -118,7 +118,7 @@ export function EvidenceDetail({
             whyItMatters.map((item) => (
               <span
                 key={item}
-                className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700"
+                className="rounded-full bg-jotform-blue/10 px-3 py-1 text-sm text-jotform-navy"
               >
                 {item}
               </span>
@@ -139,7 +139,7 @@ export function EvidenceDetail({
               key={person}
               type="button"
               onClick={() => onPersonClick(person)}
-              className="rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-900"
+              className="rounded-full bg-jotform-yellow/25 px-3 py-1 text-sm text-jotform-navy"
             >
               {person}
             </button>
@@ -190,7 +190,7 @@ export function EvidenceDetail({
                         {item.reasons.map((reason) => (
                           <span
                             key={reason}
-                            className="rounded-full bg-slate-100 px-2 py-1 text-[11px] text-slate-600"
+                            className="rounded-full bg-jotform-blue/10 px-2 py-1 text-[11px] text-jotform-navy"
                           >
                             {reasonLabels[reason]}
                           </span>
@@ -198,7 +198,7 @@ export function EvidenceDetail({
                         {item.sharedPeople.map((person) => (
                           <span
                             key={person}
-                            className="rounded-full bg-amber-100 px-2 py-1 text-[11px] text-amber-900"
+                            className="rounded-full bg-jotform-yellow/25 px-2 py-1 text-[11px] text-jotform-navy"
                           >
                             {person}
                           </span>

@@ -39,7 +39,7 @@ export function DashboardSummaryStrip({
           <div className="text-xs uppercase tracking-[0.18em] text-slate-500">
             {item.label}
           </div>
-          <div className="mt-2 text-lg font-semibold text-slate-950">
+          <div className="mt-2 text-lg font-semibold text-jotform-navy">
             {values[item.key]}
           </div>
         </div>
