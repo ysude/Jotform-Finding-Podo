@@ -176,6 +176,7 @@ export default function App() {
                 focusPersonMessages={focusPersonMessages}
                 lastSighting={lastPodoSighting}
                 routeEvidence={podoRoute}
+                selectedEvidence={selectedEvidence}
                 onOpenDashboard={openEvidenceDashboard}
               />
             ) : (

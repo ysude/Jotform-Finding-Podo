@@ -1,5 +1,5 @@
 import type { Evidence } from "../types/evidence"
-import { RouteMap } from "./RouteMap"
+import { MapView } from "./MapView"
 import { TimelineView } from "./TimelineView"
 
 type CaseOverviewProps = {
@@ -7,6 +7,7 @@ type CaseOverviewProps = {
   focusPersonMessages: Evidence[]
   lastSighting: Evidence | null
   routeEvidence: Evidence[]
+  selectedEvidence: Evidence | null
   onOpenDashboard: (id: string) => void
 }
 
@@ -15,6 +16,7 @@ export function CaseOverview({
   focusPersonMessages,
   lastSighting,
   routeEvidence,
+  selectedEvidence,
   onOpenDashboard,
 }: CaseOverviewProps) {
   return (
@@ -106,13 +108,16 @@ export function CaseOverview({
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(320px,0.9fr)_minmax(0,1.1fr)]">
-        <RouteMap evidence={routeEvidence} onSelectEvidence={onOpenDashboard} />
-        <TimelineView
-          evidence={routeEvidence}
-          onSelectEvidence={onOpenDashboard}
-        />
-      </section>
+      <MapView
+        evidence={routeEvidence}
+        selectedEvidence={selectedEvidence}
+        onSelectEvidence={onOpenDashboard}
+      />
+
+      <TimelineView
+        evidence={routeEvidence}
+        onSelectEvidence={onOpenDashboard}
+      />
     </div>
   )
 }
