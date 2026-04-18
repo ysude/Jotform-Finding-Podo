@@ -4,3 +4,4 @@ dist
 
 api/jotform.config.local.ts
 prep-material/*.md
+data/*.json

@@ -65,3 +65,5 @@ export async function fetchInvestigationForms(
     JotformSubmission[]
   >
 }
+
+export { jotformConfig }
